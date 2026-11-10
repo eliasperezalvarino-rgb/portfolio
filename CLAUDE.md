@@ -231,7 +231,7 @@ src/layouts/Base.astro   Cabecera, menú, selector de idioma y pie
 - Las fechas son 2025 provisional.
 - Las herramientas y la formación de Sobre mí están por confirmar.
 - **Orden provisional de los proyectos:** HDYFAGM, Terra Viva, Os días que foron, Día.
-- Aún no hay repositorio en GitHub ni la web está publicada en Cloudflare Pages.
+- **Repositorio git local desde el 10/11/2026** (rama `main`). El primer commit guarda el estado con A y B por si hay que volver a A. Aún no está en GitHub ni publicada en Cloudflare Pages.
 
 ## 11. Pendiente de Elías
 
@@ -244,9 +244,9 @@ src/layouts/Base.astro   Cabecera, menú, selector de idioma y pie
 - [ ] Preparar el CV en PDF.
 - [ ] Crear cuenta en GitHub y Cloudflare para publicar.
 
-## 12. Portfolio B (pruebas, 6/11/2026)
+## 12. Portfolio B (ya es la web principal desde el 10/11/2026)
 
-**B gana (Elías, 6/11/2026): a partir de ahora se trabaja sobre B.** Los cambios nuevos van en `src/b/`. Falta pasarla a la web principal (ver el final de esta sección).
+**B gana (Elías, 6/11/2026).** El 10/11/2026 se pasó a la web principal: `src/b/` y `src/pages/b/` ya no existen, y B vive en `src/views`, `src/layouts`, `src/styles`, `src/components` y `src/config.ts`, sin el prefijo `/b`. Se borraron la vista y las rutas de Contacto (`/contacto/`, `/en/contact/`). Lo que sigue describe cómo es B; donde pone `src/b/…` léase `src/…`. La web A está en el primer commit de git.
 
 Copia completa de la web para probar cambios sin tocar la buena. Se ve en `http://localhost:4321/b/` (y `/b/en/`).
 
@@ -263,4 +263,3 @@ Copia completa de la web para probar cambios sin tocar la buena. Se ve en `http:
   - En el índice de cada proyecto, las miniaturas van numeradas «(1)», como en Proyectos.
   - Página de proyecto con texto más pequeño (12,5 px) y jerarquía sutil: título a 19 px, intención a 15 px, etiquetas en versalitas grises.
   - Microanimaciones en `src/b/styles/global.css`: fundido entre páginas (View Transitions), subrayado que se funde, entradas escalonadas, flechas que se asoman, en el visor las imágenes pasan con corte seco (el fundido se quitó el 6/11/2026 porque se veía el blanco del fondo). Todo se apaga con `prefers-reduced-motion`.
-- Si B gana: copiar `src/b/views|layouts|styles|components` sobre los de `src/` y borrar `src/b/` y `src/pages/b/`. Si no, borrar esas dos carpetas. Antes de publicar, quitar B para que no salga en la web.

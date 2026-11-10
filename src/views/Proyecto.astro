@@ -24,11 +24,11 @@ const fondo = (img: (typeof p.imagenes)[number]) =>
   img.fondo ?? (['jpg', 'jpeg'].includes(img.src.format) ? 'ninguno' : 'negro');
 ---
 
-<Base idioma={idioma} alterna={rutaProyecto(p.slug, otro)} titulo={p.titulo} activo="trabajo">
+<Base idioma={idioma} alterna={rutaProyecto(p.slug, otro)} titulo={p.titulo} activo="proyectos">
   <main class="proyecto" data-vista="visor" data-en-video={video ? '' : undefined} data-unica={total === 1 ? '' : undefined}>
     <div class="cuerpo">
     <!-- Columna de texto: fija mientras se pasan las imágenes. -->
-    <div class="texto">
+    <div class="texto aparece">
       <header class="cabecera-proyecto">
         <h1 class="titulo">{p.titulo}</h1>
         <dl class="ficha">
@@ -53,26 +53,27 @@ const fondo = (img: (typeof p.imagenes)[number]) =>
 
       {p.intencion && <p class="intencion">{p.intencion[idioma]}</p>}
 
+      <!-- Apartados plegables: cerrados al entrar, se abren con un clic. -->
       {
         p.encargo && (
-          <section>
-            <h2 class="gris">{t.encargo[idioma]}</h2>
+          <details class="apartado">
+            <summary><h2 class="gris">{t.encargo[idioma]}</h2></summary>
             <p>{p.encargo[idioma]}</p>
-          </section>
+          </details>
         )
       }
-      <section>
-        <h2 class="gris">{t.concepto[idioma]}</h2>
+      <details class="apartado">
+        <summary><h2 class="gris">{t.concepto[idioma]}</h2></summary>
         <p>{p.concepto[idioma]}</p>
-      </section>
-      <section>
-        <h2 class="gris">{t.desarrollo[idioma]}</h2>
+      </details>
+      <details class="apartado">
+        <summary><h2 class="gris">{t.desarrollo[idioma]}</h2></summary>
         <p>{p.desarrollo[idioma]}</p>
-      </section>
+      </details>
     </div>
 
     <!-- Imágenes: visor de una en una (A) o índice en hoja de contactos (C). -->
-    <div class="imagenes">
+    <div class="imagenes aparece" style="--i: 2">
       <div class="visor" aria-roledescription="carrusel" aria-label={p.titulo}>
         <div class="escenario">
           {
@@ -107,9 +108,9 @@ const fondo = (img: (typeof p.imagenes)[number]) =>
         <div class="controles">
           <p class="pie" aria-live="polite">{pies[0]}</p>
           <div class="navegacion">
-            <button class="anterior" type="button" aria-label={t.imagenAnterior[idioma]}>←</button>
+            <button class="anterior" type="button" aria-label={t.imagenAnterior[idioma]}><span class="flecha flecha-izq">←</span></button>
             <span class="contador"><span class="actual">{dos(1)}</span> / {dos(total)}</span>
-            <button class="siguiente-img" type="button" aria-label={t.imagenSiguiente[idioma]}>→</button>
+            <button class="siguiente-img" type="button" aria-label={t.imagenSiguiente[idioma]}><span class="flecha">→</span></button>
             <button class="cambiar a-indice" type="button">{t.indice[idioma]}</button>
           </div>
         </div>
@@ -126,17 +127,17 @@ const fondo = (img: (typeof p.imagenes)[number]) =>
               <li>
                 <button type="button" class="miniatura miniatura-video" data-i="0" data-fondo="ninguno" aria-label={`1 / ${total}: ${t.verVideo[idioma]}`}>
                   <Image src={video.fotograma} alt="" widths={[300, 600]} sizes="(min-width: 768px) 16vw, 33vw" />
-                  <span class="numero gris">{dos(1)} ▶</span>
+                  <span class="numero gris">(1) ▶</span>
                 </button>
               </li>
             )
           }
           {
             p.imagenes.map((img, i) => (
-              <li>
+              <li style={`--i: ${i}`}>
                 <button type="button" class="miniatura" data-i={i + desfase} data-fondo={fondo(img)} aria-label={`${i + desfase + 1} / ${total}: ${img.alt[idioma]}`}>
                   <Image src={img.src} alt="" widths={[300, 600]} sizes="(min-width: 768px) 16vw, 33vw" />
-                  <span class="numero gris">{dos(i + desfase + 1)}</span>
+                  <span class="numero gris">({i + desfase + 1})</span>
                 </button>
               </li>
             ))
@@ -150,7 +151,7 @@ const fondo = (img: (typeof p.imagenes)[number]) =>
 
     <nav class="siguiente">
       <a href={rutaProyecto(siguiente.data.slug, idioma)}>
-        <span class="gris">{t.siguiente[idioma]} →</span>
+        <span class="gris">{t.siguiente[idioma]} <span class="flecha">→</span></span>
         <span class="siguiente-titulo">{siguiente.data.titulo}</span>
       </a>
     </nav>
@@ -254,33 +255,39 @@ const fondo = (img: (typeof p.imagenes)[number]) =>
     padding: calc(var(--cabecera) + 24px) var(--margen) 0;
   }
 
-  /* ---------- Texto ---------- */
+  /* ---------- Texto ----------
+     Pequeño y con una jerarquía sutil: el título un paso por encima, la intención en tinta,
+     las etiquetas en gris y versalitas pequeñas, y el cuerpo a tamaño de pie de foto. */
 
   .texto {
     display: grid;
-    gap: 20px;
+    gap: 28px;
     align-content: start;
+    font-size: 14.5px;
+    line-height: 1.45;
+    max-width: 30em;
   }
 
   .cabecera-proyecto {
     display: grid;
-    gap: 16px;
+    gap: 14px;
   }
 
   .titulo {
-    font-size: clamp(2.2rem, 4.4vw, 4.5rem);
-    line-height: 0.95;
-    letter-spacing: -0.02em;
+    font-size: 23px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
   }
 
   .ficha {
     display: grid;
-    gap: 4px;
+    gap: 2px;
   }
 
   .ficha div {
     display: grid;
-    grid-template-columns: 6em 1fr;
+    grid-template-columns: 7em 1fr;
+    column-gap: 8px;
   }
 
   .ficha dd {
@@ -288,13 +295,52 @@ const fondo = (img: (typeof p.imagenes)[number]) =>
   }
 
   .intencion {
-    margin: 20px 0 8px;
-    font-size: clamp(1.3rem, 1.8vw, 1.75rem);
-    line-height: 1.15;
+    font-size: 18px;
+    line-height: 1.3;
+    max-width: 24em;
+  }
+
+  /* Apartados plegables: la etiqueta hace de botón, con un + que pasa a − al abrirse. */
+  .apartado summary {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6em;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .apartado summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .apartado summary::after {
+    content: '+';
+    color: var(--gris);
+    font-size: 12px;
+  }
+
+  .apartado[open] summary::after {
+    content: '−';
+  }
+
+  .apartado summary:hover h2,
+  .apartado summary:hover::after {
+    color: var(--tinta);
+  }
+
+  .apartado summary:focus-visible {
+    outline: 1px solid currentColor;
+    outline-offset: 3px;
+  }
+
+  .apartado p {
+    margin-top: 6px;
   }
 
   .texto h2 {
-    margin-bottom: 4px;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 
   /* ---------- Visor (A) ---------- */
@@ -328,6 +374,14 @@ const fondo = (img: (typeof p.imagenes)[number]) =>
 
   .diapositiva[hidden] {
     display: none;
+  }
+
+  /* Al pasar de imagen, corte seco: el fundido dejaba ver el blanco del fondo (Elías, 6/11/2026). */
+
+  @keyframes fundido {
+    from {
+      opacity: 0;
+    }
   }
 
   .diapositiva :global(img) {
@@ -448,6 +502,24 @@ const fondo = (img: (typeof p.imagenes)[number]) =>
 
   .proyecto[data-vista='indice'] .indice {
     display: block;
+  }
+
+  .proyecto[data-vista='indice'] .contactos li {
+    animation: aparece 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 25ms);
+  }
+
+  .proyecto[data-vista='indice'] .visor,
+  .proyecto[data-vista='visor'] .visor {
+    animation: fundido 0.3s ease-out;
+  }
+
+  .miniatura :global(img) {
+    transition: opacity 0.2s ease;
+  }
+
+  .miniatura:hover :global(img) {
+    opacity: 0.8;
   }
 
   .indice-cabecera {

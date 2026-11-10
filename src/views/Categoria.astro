@@ -21,7 +21,7 @@ const conOrden = proyectos.map((p, orden) => ({ p, orden }));
 const columnas = [conOrden.filter(({ orden }) => orden % 2 === 0), conOrden.filter(({ orden }) => orden % 2 === 1)];
 ---
 
-<Base idioma={idioma} alterna={rutaCategoria(categoria, otro)} titulo={nombre} activo="trabajo">
+<Base idioma={idioma} alterna={rutaCategoria(categoria, otro)} titulo={nombre} activo="proyectos">
   <main class="categoria">
     <h1 class="titulo">
       {nombre} <span class="gris">({proyectos.length} {t.proyectos[idioma]})</span>

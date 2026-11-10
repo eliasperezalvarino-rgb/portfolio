@@ -7,20 +7,21 @@ interface Props {
   // URL de esta misma página en el otro idioma.
   alterna: string;
   titulo?: string;
-  activo?: 'trabajo' | 'sobreMi' | 'contacto';
+  activo?: 'proyectos' | 'sobreMi';
   // Solo en la portada en castellano: si el visitante eligió inglés antes, se le lleva a /en/.
   recordarIdioma?: boolean;
+  // Landing: solo la firma arriba a la izquierda, sin menú ni pie.
+  minimo?: boolean;
 }
 
-const { idioma, alterna, titulo, activo, recordarIdioma = false } = Astro.props;
+const { idioma, alterna, titulo, activo, recordarIdioma = false, minimo = false } = Astro.props;
 const tituloCompleto = titulo ? `${titulo} — ${sitio.firma}` : sitio.firma;
 const urlEs = new URL(idioma === 'es' ? Astro.url.pathname : alterna, Astro.site);
 const urlEn = new URL(idioma === 'en' ? Astro.url.pathname : alterna, Astro.site);
 
 const enlaces = [
-  { clave: 'trabajo', texto: t.trabajo[idioma], href: rutas.inicio[idioma] },
+  { clave: 'proyectos', texto: t.proyectosMenu[idioma], href: rutas.proyectos[idioma] },
   { clave: 'sobreMi', texto: t.sobreMi[idioma], href: rutas.sobreMi[idioma] },
-  { clave: 'contacto', texto: t.contacto[idioma], href: rutas.contacto[idioma] },
 ] as const;
 ---
 
@@ -47,6 +48,7 @@ const enlaces = [
   <body>
     <header class="cabecera">
       <a class="firma" href={rutas.inicio[idioma]}>{sitio.firma}</a>
+      {!minimo && <>
       <button class="abrir-menu" type="button" aria-expanded="false" aria-controls="menu">
         {t.menu[idioma]}
       </button>
@@ -68,22 +70,23 @@ const enlaces = [
           <span class:list={{ activo: idioma === 'en' }}>{idioma === 'en' ? 'EN' : <a href={alterna} data-idioma="en" hreflang="en">EN</a>}</span>
         </p>
       </nav>
+      </>}
     </header>
 
     <slot />
 
-    <footer class="pie">
+    {!minimo && <footer class="pie">
       <a href={`mailto:${sitio.email}`}>{sitio.email}</a>
       <a href={`https://instagram.com/${sitio.instagram}`} rel="me">@{sitio.instagram}</a>
       {sitio.telefono && <a href={`tel:${sitio.telefono.replace(/\s/g, '')}`}>{sitio.telefono}</a>}
       <span class="gris">© {new Date().getFullYear()} {sitio.firma}</span>
-    </footer>
+    </footer>}
 
     <script>
-      const boton = document.querySelector<HTMLButtonElement>('.abrir-menu')!;
-      boton.addEventListener('click', () => {
+      const boton = document.querySelector<HTMLButtonElement>('.abrir-menu');
+      boton?.addEventListener('click', () => {
         const abierto = document.body.classList.toggle('menu-abierto');
-        boton.setAttribute('aria-expanded', String(abierto));
+        boton!.setAttribute('aria-expanded', String(abierto));
       });
 
       document.querySelectorAll<HTMLAnchorElement>('[data-idioma]').forEach((a) => {
@@ -99,6 +102,8 @@ const enlaces = [
 
 <style>
   .cabecera {
+    /* La cabecera no se funde al cambiar de página: solo cambia lo de debajo. */
+    view-transition-name: cabecera;
     position: fixed;
     inset: 0 0 auto 0;
     z-index: 10;
@@ -114,9 +119,13 @@ const enlaces = [
     display: none;
   }
 
-  /* Lo seleccionado (página del menú, idioma) va en cursiva, con el mismo peso (Elías, 5/11/2026). */
-  .activo {
+  /* El idioma elegido va en cursiva; la página activa del menú, subrayada (Elías, 6/11/2026). */
+  .idiomas .activo {
     font-style: italic;
+  }
+
+  .menu a.activo {
+    text-decoration-color: currentColor;
   }
 
   .idiomas a {
@@ -134,6 +143,14 @@ const enlaces = [
     background: var(--papel);
     font-size: 2.4rem;
     line-height: 1.1;
+    animation: menu-entra 0.25s ease-out;
+  }
+
+  @keyframes menu-entra {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
   }
 
   :global(body.menu-abierto) .idiomas {
@@ -143,7 +160,7 @@ const enlaces = [
   @media (min-width: 768px) {
     .cabecera {
       display: grid;
-      grid-template-columns: repeat(4, 1fr) auto;
+      grid-template-columns: repeat(3, 1fr) auto;
     }
 
     .abrir-menu {

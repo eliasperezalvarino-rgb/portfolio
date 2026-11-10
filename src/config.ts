@@ -30,8 +30,8 @@ export const idsCategorias = categorias.map((c) => c.id) as [CategoriaId, ...Cat
 
 export const rutas = {
   inicio: { es: '/', en: '/en/' },
+  proyectos: { es: '/proyectos/', en: '/en/projects/' },
   sobreMi: { es: '/sobre-mi/', en: '/en/about/' },
-  contacto: { es: '/contacto/', en: '/en/contact/' },
 };
 
 export function rutaCategoria(id: CategoriaId, idioma: Idioma) {
@@ -45,6 +45,14 @@ export function rutaProyecto(slug: string, idioma: Idioma) {
 
 export const t = {
   trabajo: { es: 'Trabajo', en: 'Work' },
+  proyectosMenu: { es: 'Proyectos', en: 'Projects' },
+  todos: { es: 'Todos', en: 'All' },
+  filtrar: { es: 'Filtrar por sección', en: 'Filter by section' },
+  // Vistas de Proyectos (6/11/2026): cuadrícula por defecto y escalonado como en la web A.
+  vista: { es: 'Vista', en: 'View' },
+  cuadricula: { es: 'Cuadrícula', en: 'Grid' },
+  escalonado: { es: 'Escalonado', en: 'Staggered' },
+  verProyectos: { es: 'Ver proyectos', en: 'See projects' },
   sobreMi: { es: 'Sobre mí', en: 'About' },
   contacto: { es: 'Contacto', en: 'Contact' },
   menu: { es: 'Menú', en: 'Menu' },

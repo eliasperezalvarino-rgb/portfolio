@@ -36,13 +36,53 @@ const etiquetas = {
         </section>
         <Escuchando idioma={idioma} />
         {sitio.cv && <p><a href={sitio.cv} download>{t.descargarCv[idioma]}</a></p>}
-        <p><a href={rutas.contacto[idioma]}>{t.contacto[idioma]} →</a></p>
+        <!-- Contacto va aquí desde el 6/11/2026: la página aparte se fusionó con Sobre mí. -->
+        <section id="contacto">
+          <h2 class="gris">{t.contacto[idioma]}</h2>
+          <ul class="contacto">
+            <li>
+              <a href={`mailto:${sitio.email}`}>{sitio.email}</a>
+              <button class="copiar gris" type="button" data-texto={sitio.email} data-copiado={t.copiado[idioma]}>
+                {t.copiar[idioma]}
+              </button>
+            </li>
+            <li><a href={`https://instagram.com/${sitio.instagram}`} rel="me">@{sitio.instagram}</a></li>
+            {
+              sitio.telefono && (
+                <li>
+                  <a href={`tel:${sitio.telefono.replace(/\s/g, '')}`}>{sitio.telefono}</a>
+                </li>
+              )
+            }
+          </ul>
+        </section>
       </div>
     </div>
   </main>
 </Base>
 
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.copiar').forEach((boton) => {
+    const original = boton.textContent;
+    boton.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(boton.dataset.texto!);
+        boton.textContent = boton.dataset.copiado!;
+        setTimeout(() => (boton.textContent = original), 1500);
+      } catch {}
+    });
+  });
+</script>
+
 <style>
+  .copiar {
+    margin-left: 10px;
+  }
+
+  .copiar:hover {
+    color: var(--tinta);
+  }
+
   .sobre-mi {
     padding: calc(var(--cabecera) + 24px) var(--margen) 0;
   }

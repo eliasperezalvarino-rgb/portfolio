@@ -5,7 +5,7 @@
   --tinta: #111111;
   --gris: #77746d;
   /* Fondo neutro detrás de las portadas con transparencia, para que se vea el recuadro (Elías, 6/11/2026). */
-  --lamina-clara: #d6d2c8;
+  --lamina-clara: #e6e3dc;
   --fuente: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --texto: 15px;
   --interlineado: 1.3;
@@ -64,10 +64,17 @@ a {
   text-decoration: none;
 }
 
-a:hover {
-  text-decoration: underline;
+/* Microanimación: el subrayado aparece fundiéndose en vez de saltar. */
+a {
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
   text-underline-offset: 0.15em;
   text-decoration-thickness: 1px;
+  transition: text-decoration-color 0.2s ease, color 0.2s ease;
+}
+
+a:hover {
+  text-decoration-color: currentColor;
 }
 
 img {
@@ -101,4 +108,83 @@ button {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+/* ---------- Microanimaciones ---------- */
+
+/* Paso suave entre páginas (View Transitions entre documentos, sin JavaScript). */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: 0.18s ease-in both vt-sale;
+}
+
+::view-transition-new(root) {
+  animation: 0.32s ease-out both vt-entra;
+}
+
+@keyframes vt-sale {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-entra {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* Entrada escalonada: cada elemento con .aparece sube y se funde, con retraso --i. */
+.aparece {
+  animation: aparece 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+@keyframes aparece {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* Flechas que se asoman en la dirección a la que llevan. */
+.flecha {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+a:hover .flecha,
+button:hover .flecha {
+  transform: translateX(3px);
+}
+
+a:hover .flecha-izq,
+button:hover .flecha-izq {
+  transform: translateX(-3px);
+}
+
+button {
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+button:active {
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  @view-transition {
+    navigation: none;
+  }
 }
