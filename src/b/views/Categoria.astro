@@ -1,0 +1,124 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import { categorias, rutaCategoria, rutaProyecto, t, type CategoriaId, type Idioma } from '../config';
+import { getProyectos } from '../../proyectos';
+
+interface Props {
+  idioma: Idioma;
+  categoria: CategoriaId;
+}
+
+const { idioma, categoria } = Astro.props;
+const otro: Idioma = idioma === 'es' ? 'en' : 'es';
+const nombre = categorias.find((c) => c.id === categoria)!.nombre[idioma];
+const proyectos = await getProyectos(categoria);
+
+// Dos columnas que caen cada una a su ritmo (como soihong.com): impares a la izquierda, pares a la derecha.
+// Así se lee en orden de izquierda a derecha aunque las imágenes tengan alturas distintas.
+// En móvil las columnas se deshacen y cada tarjeta recupera su orden con `order`.
+const conOrden = proyectos.map((p, orden) => ({ p, orden }));
+const columnas = [conOrden.filter(({ orden }) => orden % 2 === 0), conOrden.filter(({ orden }) => orden % 2 === 1)];
+---
+
+<Base idioma={idioma} alterna={rutaCategoria(categoria, otro)} titulo={nombre} activo="proyectos">
+  <main class="categoria">
+    <h1 class="titulo">
+      {nombre} <span class="gris">({proyectos.length} {t.proyectos[idioma]})</span>
+    </h1>
+    <div class="columnas">
+      {
+        columnas.map((columna) => (
+          <ul class="columna">
+            {columna.map(({ p, orden }) => (
+              <li class="tarjeta" style={`order: ${orden}`}>
+                <a href={rutaProyecto(p.data.slug, idioma)}>
+                  <Image
+                    src={p.data.portada}
+                    alt={p.data.titulo}
+                    widths={[600, 1000, 1600]}
+                    sizes="(min-width: 768px) 50vw, 100vw"
+                    loading={orden < 2 ? 'eager' : 'lazy'}
+                  />
+                  <p class="pie-tarjeta">
+                    <span class="nombre">{p.data.titulo}</span>
+                    <span class="gris">
+                      {p.data.tipo[idioma]}, {p.data.fecha}
+                    </span>
+                  </p>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ))
+      }
+    </div>
+  </main>
+</Base>
+
+<style>
+  .categoria {
+    padding-top: var(--cabecera);
+  }
+
+  .titulo {
+    padding: 0 var(--margen) 12px;
+  }
+
+  /* Las imágenes van de borde a borde, sin margen lateral. */
+  .columnas {
+    display: grid;
+  }
+
+  .columna {
+    display: contents;
+  }
+
+  .tarjeta a {
+    display: block;
+  }
+
+  .tarjeta :global(img) {
+    width: 100%;
+    background: var(--lamina-clara);
+  }
+
+  .tarjeta a:hover {
+    text-decoration: none;
+  }
+
+  .tarjeta a:hover .nombre {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .pie-tarjeta {
+    display: grid;
+    padding: 6px var(--margen) 40px;
+  }
+
+  @media (min-width: 768px) {
+    .columnas {
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+    }
+
+    .columna {
+      display: grid;
+    }
+
+    /* Escalonado: la columna derecha empieza más abajo, para que los proyectos no queden a la misma altura. */
+    .columna:nth-child(2) {
+      padding-top: 22vw;
+    }
+
+    .pie-tarjeta {
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+
+    .columna:first-child .pie-tarjeta {
+      padding-left: var(--margen);
+    }
+  }
+</style>

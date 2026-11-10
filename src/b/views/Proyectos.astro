@@ -1,0 +1,379 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import { categorias, rutaProyecto, rutas, t, type Idioma } from '../config';
+import { getProyectos } from '../../proyectos';
+
+interface Props {
+  idioma: Idioma;
+}
+
+const { idioma } = Astro.props;
+const otro: Idioma = idioma === 'es' ? 'en' : 'es';
+const proyectos = await getProyectos();
+const cuantos = (id: string) => proyectos.filter((p) => p.data.categorias.includes(id as never)).length;
+---
+
+<Base idioma={idioma} alterna={rutas.proyectos[otro]} titulo={t.proyectosMenu[idioma]} activo="proyectos">
+  <main class="proyectos" data-modo="cuadricula">
+    <h1 class="visualmente-oculto">{t.proyectosMenu[idioma]}</h1>
+
+    <div class="barra aparece">
+    <!-- Filtros: la sección elegida se queda en color; el resto se apaga. -->
+    <ul class="filtros" aria-label={t.filtrar[idioma]}>
+      <li>
+        <button type="button" data-filtro="" aria-pressed="true">
+          <span class="palabra">{t.todos[idioma]}</span> <span class="gris cuenta">({proyectos.length})</span>
+        </button>
+      </li>
+      {
+        categorias.map((c) => (
+          <li>
+            <button type="button" data-filtro={c.id} data-slug={c.slug[idioma]} aria-pressed="false">
+              <span class="palabra">{c.nombre[idioma]}</span> <span class="gris cuenta">({cuantos(c.id)})</span>
+            </button>
+          </li>
+        ))
+      }
+    </ul>
+
+    <!-- Vista: cuadrícula (por defecto) o escalonado, como las categorías de la web A. -->
+    <ul class="vistas" aria-label={t.vista[idioma]}>
+      <li>
+        <button type="button" data-modo="cuadricula" aria-pressed="true" aria-label={t.cuadricula[idioma]} title={t.cuadricula[idioma]}>
+          <svg viewBox="0 0 13 13" width="13" height="13" aria-hidden="true"><rect x="0.5" y="0.5" width="5" height="5" /><rect x="7.5" y="0.5" width="5" height="5" /><rect x="0.5" y="7.5" width="5" height="5" /><rect x="7.5" y="7.5" width="5" height="5" /></svg>
+        </button>
+      </li>
+      <li>
+        <button type="button" data-modo="escalonado" aria-pressed="false" aria-label={t.escalonado[idioma]} title={t.escalonado[idioma]}>
+          <svg viewBox="0 0 13 13" width="13" height="13" aria-hidden="true"><rect x="0.5" y="0.5" width="5" height="7" /><rect x="7.5" y="5.5" width="5" height="7" /></svg>
+        </button>
+      </li>
+    </ul>
+    </div>
+
+    <!-- Hoja de contactos: todos los proyectos numerados. -->
+    <ol class="hoja">
+      {
+        proyectos.map((p, i) => (
+          <li class="fotograma aparece" style={`--i: ${i + 2}`} data-categorias={p.data.categorias.join(' ')}>
+            <a href={rutaProyecto(p.data.slug, idioma)}>
+              <p class="rotulo">
+                <span class="numero">({i + 1})</span>
+                <span class="nombre">{p.data.titulo}</span>
+              </p>
+              <div class="marco">
+                <Image
+                  src={p.data.portada}
+                  alt={p.data.titulo}
+                  widths={[400, 700, 1000, 1600]}
+                  sizes="(min-width: 768px) 50vw, 100vw"
+                  loading={i < 8 ? 'eager' : 'lazy'}
+                />
+              </div>
+              <!-- Solo en escalonado: título y, en gris, «tipo, año». -->
+              <p class="ficha-tarjeta">
+                <span class="titulo-tarjeta">{p.data.titulo}</span>
+                <span class="gris">{p.data.tipo[idioma]}, {p.data.fecha}</span>
+              </p>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </main>
+</Base>
+
+<script>
+  const raiz = document.querySelector<HTMLElement>('.proyectos')!;
+  const botones = [...raiz.querySelectorAll<HTMLButtonElement>('[data-filtro]')];
+  const fotogramas = [...raiz.querySelectorAll<HTMLElement>('.fotograma')];
+
+  function filtrar(id: string, actualizarUrl = true) {
+    botones.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filtro === id)));
+    fotogramas.forEach((f) => {
+      const fuera = !!id && !f.dataset.categorias!.split(' ').includes(id);
+      f.classList.toggle('apagado', fuera);
+    });
+    if (!actualizarUrl) return;
+    // La sección elegida queda en la dirección (?seccion=editorial) para poder compartirla.
+    const url = new URL(location.href);
+    const slug = botones.find((b) => b.dataset.filtro === id)?.dataset.slug;
+    slug ? url.searchParams.set('seccion', slug) : url.searchParams.delete('seccion');
+    history.replaceState(null, '', url);
+  }
+
+  botones.forEach((b) =>
+    b.addEventListener('click', () => {
+      // Pulsar otra vez el filtro activo vuelve a «Todos».
+      const yaActivo = b.getAttribute('aria-pressed') === 'true';
+      filtrar(yaActivo ? '' : b.dataset.filtro!);
+    }),
+  );
+
+  // Vista: se recuerda en este navegador; si no hay nada guardado, cuadrícula.
+  const hoja = raiz.querySelector<HTMLElement>('.hoja')!;
+  const botonesVista = [...raiz.querySelectorAll<HTMLButtonElement>('.vistas [data-modo]')];
+  const sinMovimiento = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function vista(modo: string, animar = true) {
+    if (modo !== 'escalonado') modo = 'cuadricula';
+    raiz.dataset.modo = modo;
+    botonesVista.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.modo === modo)));
+    try {
+      localStorage.setItem('vista-proyectos', modo);
+    } catch {}
+    if (animar && !sinMovimiento) hoja.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, easing: 'ease-out' });
+  }
+
+  botonesVista.forEach((b) => b.addEventListener('click', () => vista(b.dataset.modo!)));
+  try {
+    const guardada = localStorage.getItem('vista-proyectos');
+    if (guardada) vista(guardada, false);
+  } catch {}
+
+  const inicial = new URL(location.href).searchParams.get('seccion');
+  const boton = botones.find((b) => b.dataset.slug === inicial);
+  if (boton) filtrar(boton.dataset.filtro!, false);
+</script>
+
+<style>
+  /* Márgenes más pequeños que en el resto de la web: la hoja va casi de borde a borde (6/11/2026). */
+  .proyectos {
+    --borde: 12px;
+    padding: calc(var(--cabecera) + 24px) var(--borde) 0;
+    min-height: calc(100svh - 120px);
+  }
+
+  .barra {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 4px 20px;
+    margin-bottom: 24px;
+    padding: 0 calc(var(--margen) - var(--borde));
+  }
+
+  /* Iconos de vista: el activo en tinta, el otro en gris. */
+  .vistas {
+    display: flex;
+    gap: 10px;
+    align-self: center;
+  }
+
+  .vistas button {
+    display: block;
+    padding: 2px;
+    color: var(--gris);
+    opacity: 0.6;
+    transition:
+      color 0.2s ease,
+      opacity 0.2s ease;
+  }
+
+  .vistas button:hover,
+  .vistas button[aria-pressed='true'] {
+    color: var(--tinta);
+    opacity: 1;
+  }
+
+  /* En trazo, no en relleno (Elías, 6/11/2026). */
+  .vistas svg {
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 0.75;
+  }
+
+  /* ---------- Filtros ---------- */
+
+  .filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 20px;
+  }
+
+  .filtros .palabra {
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 0.15em;
+    text-decoration-thickness: 1px;
+    transition: text-decoration-color 0.2s ease;
+  }
+
+  .filtros button:hover .palabra {
+    text-decoration-color: currentColor;
+  }
+
+  /* El filtro elegido se queda subrayado, como la página activa del menú (Elías, 6/11/2026). */
+  .filtros button[aria-pressed='true'] .palabra {
+    text-decoration-color: currentColor;
+  }
+
+  .cuenta {
+    font-variant-numeric: tabular-nums;
+    font-style: normal;
+  }
+
+  /* ---------- Hoja de contactos ---------- */
+
+  .hoja {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 768px) {
+    .hoja {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .hoja {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+
+  .fotograma a {
+    display: block;
+  }
+
+  .fotograma a:hover {
+    text-decoration: none;
+  }
+
+  /* Número arriba; al pasar el cursor aparece el nombre a su lado. */
+  .rotulo {
+    display: flex;
+    gap: 0.4em;
+    margin-bottom: 4px;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .numero {
+    font-variant-numeric: tabular-nums;
+    flex: none;
+  }
+
+  .nombre {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition:
+      opacity 0.2s ease,
+      transform 0.25s ease;
+  }
+
+  .fotograma a:hover .nombre,
+  .fotograma a:focus-visible .nombre {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Sin cursor (móvil) el nombre se ve siempre. */
+  @media (hover: none) {
+    .nombre {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .marco {
+    overflow: hidden;
+    aspect-ratio: 4 / 5;
+    background: var(--lamina-clara);
+  }
+
+  .marco :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition:
+      transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1),
+      filter 0.45s ease,
+      opacity 0.45s ease;
+  }
+
+  .fotograma a:hover .marco :global(img) {
+    transform: scale(1.025);
+  }
+
+  /* Fuera del filtro: en gris y apagado, como un fotograma que no está disponible. */
+  .rotulo {
+    transition:
+      color 0.45s ease,
+      opacity 0.45s ease;
+  }
+
+  .apagado .marco :global(img) {
+    filter: grayscale(1);
+    opacity: 0.22;
+  }
+
+  .apagado .rotulo {
+    color: var(--gris);
+    opacity: 0.6;
+  }
+
+  .apagado a:hover .marco :global(img) {
+    transform: none;
+    opacity: 0.35;
+  }
+
+  /* ---------- Escalonado (como las categorías de la web A) ----------
+     Dos columnas de borde a borde: impares a la izquierda, pares a la derecha y más abajo (22vw).
+     Como todas las portadas son 4:5, basta con bajar las de la derecha sin mover el resto. */
+
+  .ficha-tarjeta {
+    display: none;
+  }
+
+  .proyectos[data-modo='escalonado'] .hoja {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    margin: 0 calc(-1 * var(--borde));
+  }
+
+  .proyectos[data-modo='escalonado'] .rotulo {
+    display: none;
+  }
+
+  .proyectos[data-modo='escalonado'] .ficha-tarjeta {
+    display: grid;
+    padding: 6px var(--margen) 40px;
+  }
+
+  .proyectos[data-modo='escalonado'] .fotograma a:hover .titulo-tarjeta {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  @media (min-width: 768px) {
+    .proyectos[data-modo='escalonado'] .hoja {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      padding-bottom: 22vw;
+    }
+
+    .proyectos[data-modo='escalonado'] .fotograma:nth-child(even) {
+      position: relative;
+      top: 22vw;
+    }
+
+    .proyectos[data-modo='escalonado'] .ficha-tarjeta {
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+
+    .proyectos[data-modo='escalonado'] .fotograma:nth-child(odd) .ficha-tarjeta {
+      padding-left: var(--margen);
+    }
+  }
+</style>

@@ -1,0 +1,625 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import { rutaProyecto, t, type Idioma } from '../config';
+import { getSiguiente, type Proyecto } from '../../proyectos';
+
+interface Props {
+  idioma: Idioma;
+  proyecto: Proyecto;
+}
+
+const { idioma, proyecto } = Astro.props;
+const otro: Idioma = idioma === 'es' ? 'en' : 'es';
+const p = proyecto.data;
+const siguiente = await getSiguiente(proyecto);
+// Videoclips: si hay vídeo, es la primera diapositiva y las imágenes van detrás.
+const video = p.video;
+const desfase = video ? 1 : 0;
+const total = p.imagenes.length + desfase;
+const pies = [...(video ? [video.pie?.[idioma] ?? ''] : []), ...p.imagenes.map((img) => img.pie?.[idioma] ?? '')];
+const dos = (n: number) => String(n).padStart(2, '0');
+// Las fotografías (JPG) salen completas; los objetos recortados y las dobles páginas, sobre negro.
+const fondo = (img: (typeof p.imagenes)[number]) =>
+  img.fondo ?? (['jpg', 'jpeg'].includes(img.src.format) ? 'ninguno' : 'negro');
+---
+
+<Base idioma={idioma} alterna={rutaProyecto(p.slug, otro)} titulo={p.titulo} activo="proyectos">
+  <main class="proyecto" data-vista="visor" data-en-video={video ? '' : undefined} data-unica={total === 1 ? '' : undefined}>
+    <div class="cuerpo">
+    <!-- Columna de texto: fija mientras se pasan las imágenes. -->
+    <div class="texto aparece">
+      <header class="cabecera-proyecto">
+        <h1 class="titulo">{p.titulo}</h1>
+        <dl class="ficha">
+          <div><dt class="gris">{t.fecha[idioma]}</dt><dd>{p.fecha}</dd></div>
+          <div><dt class="gris">{t.tipo[idioma]}</dt><dd>{p.tipo[idioma]}</dd></div>
+          <div><dt class="gris">{t.papel[idioma]}</dt><dd>{p.papel[idioma]}</dd></div>
+          {p.academico && <div><dt class="gris">{t.contexto[idioma]}</dt><dd>{t.academico[idioma]}</dd></div>}
+          {
+            p.creditos.length > 0 && (
+              <div>
+                <dt class="gris">{t.creditos[idioma]}</dt>
+                {p.creditos.map((c) => (
+                  <dd>
+                    {c.rol[idioma]} — {c.nombre}
+                  </dd>
+                ))}
+              </div>
+            )
+          }
+        </dl>
+      </header>
+
+      {p.intencion && <p class="intencion">{p.intencion[idioma]}</p>}
+
+      <!-- Apartados plegables: cerrados al entrar, se abren con un clic. -->
+      {
+        p.encargo && (
+          <details class="apartado">
+            <summary><h2 class="gris">{t.encargo[idioma]}</h2></summary>
+            <p>{p.encargo[idioma]}</p>
+          </details>
+        )
+      }
+      <details class="apartado">
+        <summary><h2 class="gris">{t.concepto[idioma]}</h2></summary>
+        <p>{p.concepto[idioma]}</p>
+      </details>
+      <details class="apartado">
+        <summary><h2 class="gris">{t.desarrollo[idioma]}</h2></summary>
+        <p>{p.desarrollo[idioma]}</p>
+      </details>
+    </div>
+
+    <!-- Imágenes: visor de una en una (A) o índice en hoja de contactos (C). -->
+    <div class="imagenes aparece" style="--i: 2">
+      <div class="visor" aria-roledescription="carrusel" aria-label={p.titulo}>
+        <div class="escenario">
+          {
+            video && (
+              <figure class="diapositiva diapositiva-video" data-i="0" data-fondo="ninguno" aria-label={`1 / ${total}`}>
+                <div class="marco-video">
+                  <!-- No se carga YouTube (ni sus cookies) hasta que se pulsa. -->
+                  <button type="button" class="reproducir" data-youtube={video.youtube} aria-label={`${t.verVideo[idioma]}: ${p.titulo}`}>
+                    <Image src={video.fotograma} alt="" widths={[800, 1400, 2200]} sizes="(min-width: 768px) 68vw, 100vw" loading="eager" />
+                    <span class="reproducir-texto">▶ {t.verVideo[idioma]}</span>
+                  </button>
+                </div>
+              </figure>
+            )
+          }
+          {
+            p.imagenes.map((img, i) => (
+              <figure class="diapositiva" data-i={i + desfase} data-fondo={fondo(img)} hidden={i + desfase !== 0} aria-label={`${i + desfase + 1} / ${total}`}>
+                <Image
+                  src={img.src}
+                  alt={img.alt[idioma]}
+                  widths={[800, 1400, 2200]}
+                  sizes="(min-width: 768px) 68vw, 100vw"
+                  loading={i < 2 ? 'eager' : 'lazy'}
+                />
+              </figure>
+            ))
+          }
+          <button class="zona zona-anterior" type="button" aria-label={t.imagenAnterior[idioma]}></button>
+          <button class="zona zona-siguiente" type="button" aria-label={t.imagenSiguiente[idioma]}></button>
+        </div>
+        <div class="controles">
+          <p class="pie" aria-live="polite">{pies[0]}</p>
+          <div class="navegacion">
+            <button class="anterior" type="button" aria-label={t.imagenAnterior[idioma]}><span class="flecha flecha-izq">←</span></button>
+            <span class="contador"><span class="actual">{dos(1)}</span> / {dos(total)}</span>
+            <button class="siguiente-img" type="button" aria-label={t.imagenSiguiente[idioma]}><span class="flecha">→</span></button>
+            <button class="cambiar a-indice" type="button">{t.indice[idioma]}</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="indice">
+        <div class="indice-cabecera">
+          <span class="gris">{dos(total)}</span>
+          <button class="cambiar a-visor" type="button">{t.unaAUna[idioma]}</button>
+        </div>
+        <ol class="contactos">
+          {
+            video && (
+              <li>
+                <button type="button" class="miniatura miniatura-video" data-i="0" data-fondo="ninguno" aria-label={`1 / ${total}: ${t.verVideo[idioma]}`}>
+                  <Image src={video.fotograma} alt="" widths={[300, 600]} sizes="(min-width: 768px) 16vw, 33vw" />
+                  <span class="numero gris">(1) ▶</span>
+                </button>
+              </li>
+            )
+          }
+          {
+            p.imagenes.map((img, i) => (
+              <li style={`--i: ${i}`}>
+                <button type="button" class="miniatura" data-i={i + desfase} data-fondo={fondo(img)} aria-label={`${i + desfase + 1} / ${total}: ${img.alt[idioma]}`}>
+                  <Image src={img.src} alt="" widths={[300, 600]} sizes="(min-width: 768px) 16vw, 33vw" />
+                  <span class="numero gris">({i + desfase + 1})</span>
+                </button>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+
+      <script type="application/json" class="pies" set:html={JSON.stringify(pies)} />
+    </div>
+    </div>
+
+    <nav class="siguiente">
+      <a href={rutaProyecto(siguiente.data.slug, idioma)}>
+        <span class="gris">{t.siguiente[idioma]} <span class="flecha">→</span></span>
+        <span class="siguiente-titulo">{siguiente.data.titulo}</span>
+      </a>
+    </nav>
+  </main>
+</Base>
+
+<script>
+  // Visor: una imagen cada vez, como pasar las páginas del libro. Índice: todas de un vistazo.
+  const raiz = document.querySelector<HTMLElement>('.proyecto')!;
+  const diapositivas = [...raiz.querySelectorAll<HTMLElement>('.diapositiva')];
+  const pies: string[] = JSON.parse(raiz.querySelector('.pies')!.textContent!);
+  const actual = raiz.querySelector('.actual')!;
+  const pie = raiz.querySelector('.pie')!;
+  const total = diapositivas.length;
+  let i = 0;
+
+  // Carga ya la imagen anterior y la siguiente para que pasar de página sea instantáneo.
+  function precargar(n: number) {
+    const img = diapositivas[(n + total) % total]?.querySelector('img');
+    if (img) img.loading = 'eager';
+  }
+
+  // Vídeo: se carga YouTube al pulsar y se pausa al pasar a otra diapositiva.
+  const reproducir = raiz.querySelector<HTMLButtonElement>('.reproducir');
+  reproducir?.addEventListener('click', () => {
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube-nocookie.com/embed/${reproducir.dataset.youtube}?autoplay=1&rel=0&playsinline=1&enablejsapi=1`;
+    iframe.title = reproducir.getAttribute('aria-label') ?? '';
+    iframe.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
+    iframe.allowFullscreen = true;
+    reproducir.replaceWith(iframe);
+  });
+  function pausarVideo() {
+    raiz.querySelector<HTMLIFrameElement>('.marco-video iframe')?.contentWindow?.postMessage(
+      JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }),
+      '*',
+    );
+  }
+
+  function ir(n: number) {
+    i = (n + total) % total;
+    diapositivas.forEach((d, k) => (d.hidden = k !== i));
+    // En el vídeo no hay mitades clicables: el clic es para el reproductor.
+    const enVideo = diapositivas[i].classList.contains('diapositiva-video');
+    raiz.toggleAttribute('data-en-video', enVideo);
+    if (!enVideo) pausarVideo();
+    actual.textContent = String(i + 1).padStart(2, '0');
+    pie.textContent = pies[i];
+    precargar(i + 1);
+    precargar(i - 1);
+  }
+
+  // Al cambiar de vista se vuelve al principio de las imágenes si se había bajado más allá.
+  const imagenes = raiz.querySelector<HTMLElement>('.imagenes')!;
+  function vista(nombre: 'visor' | 'indice') {
+    raiz.dataset.vista = nombre;
+    if (nombre === 'indice') pausarVideo();
+    const cabecera = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cabecera')) || 44;
+    const top = imagenes.getBoundingClientRect().top + scrollY - cabecera - 24;
+    if (scrollY > top) scrollTo({ top: Math.max(top, 0) });
+  }
+
+  raiz.querySelector('.anterior')!.addEventListener('click', () => ir(i - 1));
+  raiz.querySelector('.siguiente-img')!.addEventListener('click', () => ir(i + 1));
+  raiz.querySelector('.zona-anterior')!.addEventListener('click', () => ir(i - 1));
+  raiz.querySelector('.zona-siguiente')!.addEventListener('click', () => ir(i + 1));
+  raiz.querySelector('.a-indice')!.addEventListener('click', () => vista('indice'));
+  raiz.querySelector('.a-visor')!.addEventListener('click', () => vista('visor'));
+  raiz.querySelectorAll<HTMLButtonElement>('.miniatura').forEach((b) =>
+    b.addEventListener('click', () => {
+      ir(Number(b.dataset.i));
+      vista('visor');
+    }),
+  );
+
+  // Teclado: flechas para pasar, i para el índice.
+  document.addEventListener('keydown', (e) => {
+    if (e.target instanceof HTMLInputElement || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (raiz.dataset.vista === 'visor' && e.key === 'ArrowRight') ir(i + 1);
+    else if (raiz.dataset.vista === 'visor' && e.key === 'ArrowLeft') ir(i - 1);
+    else if (e.key === 'Escape' && raiz.dataset.vista === 'indice') vista('visor');
+  });
+
+  // Móvil: deslizar el dedo para pasar.
+  let x0: number | null = null;
+  const escenario = raiz.querySelector<HTMLElement>('.escenario')!;
+  escenario.addEventListener('touchstart', (e) => (x0 = e.touches[0].clientX), { passive: true });
+  escenario.addEventListener('touchend', (e) => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 40) ir(dx < 0 ? i + 1 : i - 1);
+    x0 = null;
+  });
+
+  precargar(1);
+  precargar(-1);
+</script>
+
+<style>
+  .proyecto {
+    padding: calc(var(--cabecera) + 24px) var(--margen) 0;
+  }
+
+  /* ---------- Texto ----------
+     Pequeño y con una jerarquía sutil: el título un paso por encima, la intención en tinta,
+     las etiquetas en gris y versalitas pequeñas, y el cuerpo a tamaño de pie de foto. */
+
+  .texto {
+    display: grid;
+    gap: 28px;
+    align-content: start;
+    font-size: 14.5px;
+    line-height: 1.45;
+    max-width: 30em;
+  }
+
+  .cabecera-proyecto {
+    display: grid;
+    gap: 14px;
+  }
+
+  .titulo {
+    font-size: 23px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  .ficha {
+    display: grid;
+    gap: 2px;
+  }
+
+  .ficha div {
+    display: grid;
+    grid-template-columns: 7em 1fr;
+    column-gap: 8px;
+  }
+
+  .ficha dd {
+    grid-column: 2;
+  }
+
+  .intencion {
+    font-size: 18px;
+    line-height: 1.3;
+    max-width: 24em;
+  }
+
+  /* Apartados plegables: la etiqueta hace de botón, con un + que pasa a − al abrirse. */
+  .apartado summary {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6em;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .apartado summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .apartado summary::after {
+    content: '+';
+    color: var(--gris);
+    font-size: 12px;
+  }
+
+  .apartado[open] summary::after {
+    content: '−';
+  }
+
+  .apartado summary:hover h2,
+  .apartado summary:hover::after {
+    color: var(--tinta);
+  }
+
+  .apartado summary:focus-visible {
+    outline: 1px solid currentColor;
+    outline-offset: 3px;
+  }
+
+  .apartado p {
+    margin-top: 6px;
+  }
+
+  .texto h2 {
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ---------- Visor (A) ---------- */
+
+  .imagenes {
+    margin-top: 40px;
+  }
+
+  /* En móvil, lámina 4:5; en escritorio, toda la altura disponible. */
+  .escenario {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    max-height: 75svh;
+    width: 100%;
+  }
+
+  /* Fotografías: completas, a todo el tamaño del escenario, sobre el fondo de la página. */
+  .diapositiva {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Objetos recortados y dobles páginas: sobre lámina negra, con un margen ajustado. */
+  .diapositiva[data-fondo='negro'] {
+    padding: clamp(12px, 3%, 40px);
+    background: #000;
+  }
+
+  .diapositiva[hidden] {
+    display: none;
+  }
+
+  /* Al pasar de imagen, corte seco: el fundido dejaba ver el blanco del fondo (Elías, 6/11/2026). */
+
+  @keyframes fundido {
+    from {
+      opacity: 0;
+    }
+  }
+
+  .diapositiva :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  /* Vídeo 16:9: lo más grande que quepa en el escenario, sin lámina (Elías, 6/11/2026). */
+  .diapositiva-video {
+    container-type: size;
+  }
+
+  .marco-video {
+    width: min(100cqw, 100cqh * 16 / 9);
+    aspect-ratio: 16 / 9;
+  }
+
+  .marco-video :global(iframe),
+  .reproducir {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .reproducir {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .reproducir :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .reproducir-texto {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    padding: 2px 6px;
+    color: var(--papel);
+    background: #000;
+  }
+
+  .reproducir:hover .reproducir-texto {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .proyecto[data-en-video] .zona {
+    display: none;
+  }
+
+  /* Con una sola diapositiva (solo el vídeo) no hay nada que pasar ni índice. */
+  .proyecto[data-unica] .navegacion {
+    display: none;
+  }
+
+  /* Mitades invisibles de la imagen: clic a la izquierda vuelve, a la derecha avanza. */
+  .zona {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+  }
+
+  .zona-anterior {
+    left: 0;
+    cursor: w-resize;
+  }
+
+  .zona-siguiente {
+    right: 0;
+    cursor: e-resize;
+  }
+
+  .controles {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  .pie {
+    min-height: 1.3em;
+  }
+
+  .navegacion {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .navegacion button:hover,
+  .indice-cabecera button:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .cambiar {
+    margin-left: 10px;
+  }
+
+  /* ---------- Índice (C) ---------- */
+
+  .indice {
+    display: none;
+  }
+
+  .proyecto[data-vista='indice'] .visor {
+    display: none;
+  }
+
+  .proyecto[data-vista='indice'] .indice {
+    display: block;
+  }
+
+  .proyecto[data-vista='indice'] .contactos li {
+    animation: aparece 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 25ms);
+  }
+
+  .proyecto[data-vista='indice'] .visor,
+  .proyecto[data-vista='visor'] .visor {
+    animation: fundido 0.3s ease-out;
+  }
+
+  .miniatura :global(img) {
+    transition: opacity 0.2s ease;
+  }
+
+  .miniatura:hover :global(img) {
+    opacity: 0.8;
+  }
+
+  .indice-cabecera {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .contactos {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    list-style: none;
+  }
+
+  .miniatura {
+    display: block;
+    width: 100%;
+    text-align: left;
+  }
+
+  .miniatura :global(img) {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: contain;
+  }
+
+  /* En el índice las fotografías llenan el cuadrado, como en una hoja de contactos. */
+  .miniatura[data-fondo='ninguno'] :global(img) {
+    object-fit: cover;
+  }
+
+  .miniatura[data-fondo='negro'] :global(img) {
+    padding: 8%;
+    background: #000;
+  }
+
+  .miniatura:hover .numero {
+    color: var(--tinta);
+  }
+
+  .numero {
+    display: block;
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Siguiente proyecto ---------- */
+
+  .siguiente {
+    margin-top: 96px;
+  }
+
+  .siguiente a {
+    display: grid;
+  }
+
+  .siguiente-titulo {
+    font-size: clamp(2.2rem, 6vw, 5.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+  }
+
+  /* ---------- Escritorio: texto a la izquierda, imágenes a la derecha ---------- */
+
+  @media (min-width: 768px) {
+    /* El bloque fijo (texto y visor) se mueve solo dentro de .cuerpo y nunca pisa lo de debajo. */
+    .cuerpo {
+      display: grid;
+      grid-template-columns: minmax(16em, 1fr) 2.4fr;
+      column-gap: calc(var(--margen) * 2);
+      align-items: start;
+    }
+
+    .texto {
+      position: sticky;
+      top: calc(var(--cabecera) + 24px);
+      max-height: calc(100svh - var(--cabecera) - 48px);
+      overflow-y: auto;
+    }
+
+    .imagenes {
+      margin-top: 0;
+    }
+
+    /* El visor ocupa la pantalla y se queda quieto mientras se pasan las imágenes. */
+    .visor {
+      position: sticky;
+      top: calc(var(--cabecera) + 24px);
+    }
+
+    .escenario {
+      aspect-ratio: auto;
+      max-height: none;
+      height: calc(100svh - var(--cabecera) - 24px - 48px);
+    }
+
+    .contactos {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--margen);
+    }
+  }
+</style>

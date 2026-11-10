@@ -1,0 +1,12 @@
+---
+import Categoria from '../../views/Categoria.astro';
+import { categorias } from '../../config';
+
+export function getStaticPaths() {
+  return categorias.map((c) => ({ params: { categoria: c.slug.en }, props: { id: c.id } }));
+}
+
+const { id } = Astro.props;
+---
+
+<Categoria idioma="en" categoria={id} />

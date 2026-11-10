@@ -1,0 +1,115 @@
+---
+// «Escuchando ahora»: la canción que suena en el Spotify de Elías, leída de stats.fm.
+// Si no suena nada, muestra la última que escuchó. Si stats.fm no responde, no se muestra.
+// El usuario está en src/config.ts (sitio.statsfm).
+import { sitio, type Idioma } from '../config';
+
+interface Props {
+  idioma: Idioma;
+}
+
+const { idioma } = Astro.props;
+const etiquetas = {
+  ahora: { es: 'Escuchando ahora', en: 'Now playing' },
+  ultima: { es: 'Lo último que escuché', en: 'Last played' },
+};
+---
+
+{
+  sitio.statsfm && (
+    <section
+      class="escuchando"
+      hidden
+      data-usuario={sitio.statsfm}
+      data-ahora={etiquetas.ahora[idioma]}
+      data-ultima={etiquetas.ultima[idioma]}
+      aria-live="polite"
+    >
+      <h2 class="gris" data-etiqueta />
+      <a class="cancion" target="_blank" rel="noreferrer">
+        <img class="portada" alt="" width="40" height="40" loading="lazy" />
+        <span data-texto />
+      </a>
+    </section>
+  )
+}
+
+<script>
+  const CADA_SEGUNDOS = 30;
+
+  type Track = {
+    name: string;
+    artists?: { name: string }[];
+    albums?: { image?: string }[];
+    externalIds?: { spotify?: string[] };
+  };
+
+  async function pedir(api: string) {
+    const ahora = await fetch(`${api}/current`).then((r) => (r.ok ? r.json() : null));
+    if (ahora?.item?.isPlaying && ahora.item.track) return { track: ahora.item.track as Track, sonando: true };
+    const recientes = await fetch(`${api}/recent?limit=1`).then((r) => (r.ok ? r.json() : null));
+    const ultima = recientes?.items?.[0]?.track as Track | undefined;
+    return ultima ? { track: ultima, sonando: false } : null;
+  }
+
+  document.querySelectorAll<HTMLElement>('.escuchando').forEach((caja) => {
+    const api = `https://api.stats.fm/api/v1/users/${caja.dataset.usuario}/streams`;
+    const etiqueta = caja.querySelector<HTMLElement>('[data-etiqueta]')!;
+    const enlace = caja.querySelector<HTMLAnchorElement>('.cancion')!;
+    const portada = caja.querySelector<HTMLImageElement>('.portada')!;
+    const texto = caja.querySelector<HTMLElement>('[data-texto]')!;
+
+    const actualizar = async () => {
+      try {
+        const datos = await pedir(api);
+        if (!datos) return;
+        const { track, sonando } = datos;
+        const artistas = track.artists?.map((a) => a.name).join(', ') ?? '';
+        const spotifyId = track.externalIds?.spotify?.[0];
+        const imagen = track.albums?.[0]?.image;
+
+        etiqueta.textContent = (sonando ? caja.dataset.ahora : caja.dataset.ultima) ?? '';
+        texto.textContent = artistas ? `${track.name} — ${artistas}` : track.name;
+        if (spotifyId) enlace.href = `https://open.spotify.com/track/${spotifyId}`;
+        else enlace.removeAttribute('href');
+        if (imagen) {
+          portada.src = imagen;
+          portada.hidden = false;
+        } else portada.hidden = true;
+        caja.hidden = false;
+      } catch {
+        // Si stats.fm falla, se queda lo que había (o nada).
+      }
+    };
+
+    actualizar();
+    setInterval(() => {
+      if (!document.hidden) actualizar();
+    }, CADA_SEGUNDOS * 1000);
+  });
+</script>
+
+<style>
+  .escuchando h2 {
+    margin-bottom: 8px;
+  }
+
+  .cancion {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .cancion[href]:hover span {
+    text-decoration: underline;
+  }
+
+  .portada {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    object-fit: cover;
+  }
+</style>

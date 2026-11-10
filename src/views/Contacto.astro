@@ -1,0 +1,74 @@
+---
+import Base from '../layouts/Base.astro';
+import { rutas, sitio, t, type Idioma } from '../config';
+
+interface Props {
+  idioma: Idioma;
+}
+
+const { idioma } = Astro.props;
+const otro: Idioma = idioma === 'es' ? 'en' : 'es';
+---
+
+<Base idioma={idioma} alterna={rutas.contacto[otro]} titulo={t.contacto[idioma]} activo="contacto">
+  <main class="contacto">
+    <h1 class="visualmente-oculto">{t.contacto[idioma]}</h1>
+    <ul class="lineas">
+      <li>
+        <a href={`mailto:${sitio.email}`}>{sitio.email}</a>
+        <button class="copiar gris" type="button" data-texto={sitio.email} data-copiado={t.copiado[idioma]}>
+          {t.copiar[idioma]}
+        </button>
+      </li>
+      <li><a href={`https://instagram.com/${sitio.instagram}`} rel="me">@{sitio.instagram}</a></li>
+      {
+        sitio.telefono && (
+          <li>
+            <a href={`tel:${sitio.telefono.replace(/\s/g, '')}`}>{sitio.telefono}</a>
+          </li>
+        )
+      }
+    </ul>
+  </main>
+</Base>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.copiar').forEach((boton) => {
+    const original = boton.textContent;
+    boton.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(boton.dataset.texto!);
+        boton.textContent = boton.dataset.copiado!;
+        setTimeout(() => (boton.textContent = original), 1500);
+      } catch {}
+    });
+  });
+</script>
+
+<style>
+  .contacto {
+    display: flex;
+    align-items: center;
+    min-height: calc(100svh - 120px);
+    padding: var(--cabecera) var(--margen) 0;
+  }
+
+  .lineas {
+    display: grid;
+    gap: 8px;
+    font-size: clamp(1.6rem, 4.5vw, 4rem);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    overflow-wrap: anywhere;
+  }
+
+  .copiar {
+    font-size: var(--texto);
+    vertical-align: middle;
+    margin-left: 12px;
+  }
+
+  .copiar:hover {
+    color: var(--tinta);
+  }
+</style>

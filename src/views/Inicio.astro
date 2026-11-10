@@ -1,0 +1,218 @@
+---
+import { getImage } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import { categorias, rutaCategoria, rutas, t, type Idioma } from '../config';
+import { getProyectos } from '../proyectos';
+
+interface Props {
+  idioma: Idioma;
+}
+
+const { idioma } = Astro.props;
+// Times sin ligaduras junta la f con el punto de la i: se abre un poco ese par.
+const separarFi = (texto: string) => texto.replace(/f(?=i)/g, '<span class="par-fi">f</span>');
+const otro: Idioma = idioma === 'es' ? 'en' : 'es';
+
+// Para cada categoría, las URLs optimizadas de las imágenes de showcase de sus proyectos.
+const showcase: Record<string, string[]> = {};
+for (const c of categorias) {
+  const proyectos = await getProyectos(c.id);
+  const imagenes = proyectos.flatMap((p) => p.data.showcase);
+  showcase[c.id] = await Promise.all(
+    imagenes.map(async (src) => (await getImage({ src, width: 1600, format: 'webp' })).src),
+  );
+}
+---
+
+<Base idioma={idioma} alterna={rutas.inicio[otro]} activo="trabajo" recordarIdioma={idioma === 'es'}>
+  <main class="inicio">
+    <h1 class="visualmente-oculto">{t.trabajo[idioma]}</h1>
+    <ul class="palabras">
+      {
+        categorias.map((c) => (
+          <li>
+            <a href={rutaCategoria(c.id, idioma)} data-categoria={c.id} set:html={separarFi(c.nombre[idioma])} />
+          </li>
+        ))
+      }
+    </ul>
+    <div class="showcase" aria-hidden="true">
+      <img alt="" decoding="async" />
+    </div>
+    <script type="application/json" id="showcase-datos" set:html={JSON.stringify(showcase)} />
+  </main>
+</Base>
+
+<script>
+  // Al pasar por una categoría, la pantalla enseña imágenes de sus proyectos al azar, como un flipbook.
+  const CADENCIA = 700;
+
+  const raiz = document.querySelector<HTMLElement>('.inicio')!;
+  const img = raiz.querySelector<HTMLImageElement>('.showcase img')!;
+  const palabras = [...raiz.querySelectorAll<HTMLAnchorElement>('[data-categoria]')];
+  const datos: Record<string, string[]> = JSON.parse(document.getElementById('showcase-datos')!.textContent!);
+  const sinMovimiento = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let activa: string | null = null;
+  let ultima = -1;
+  let temporizador: number | undefined;
+
+  function mostrarOtra(categoria: string) {
+    const lista = datos[categoria];
+    if (!lista?.length) return;
+    let i: number;
+    do i = Math.floor(Math.random() * lista.length);
+    while (lista.length > 1 && i === ultima);
+    ultima = i;
+    img.src = lista[i];
+  }
+
+  // Todas las imágenes, verticales u horizontales, se centran sobre la palabra activa.
+  // Si así se salieran de la pantalla, se desplazan lo justo para caber.
+  function colocar() {
+    const a = palabras.find((p) => p.dataset.categoria === activa);
+    if (!a || !img.naturalWidth) return;
+    const palabra = a.getBoundingClientRect();
+    const ancho = img.getBoundingClientRect().width;
+    const pantalla = document.documentElement.clientWidth;
+    const left = palabra.left + palabra.width / 2 - ancho / 2;
+    img.style.left = `${Math.min(Math.max(left, 0), Math.max(pantalla - ancho, 0))}px`;
+  }
+  img.addEventListener('load', colocar);
+
+  function activar(a: HTMLAnchorElement) {
+    const categoria = a.dataset.categoria!;
+    if (activa === categoria) return;
+    activa = categoria;
+    raiz.dataset.activa = categoria;
+    palabras.forEach((p) => p.classList.toggle('encendida', p === a));
+    mostrarOtra(categoria);
+    clearInterval(temporizador);
+    if (!sinMovimiento) temporizador = window.setInterval(() => mostrarOtra(categoria), CADENCIA);
+  }
+
+  function apagar() {
+    activa = null;
+    delete raiz.dataset.activa;
+    palabras.forEach((p) => p.classList.remove('encendida'));
+    clearInterval(temporizador);
+  }
+
+  for (const a of palabras) {
+    a.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && activar(a));
+    a.addEventListener('focus', () => activar(a));
+    a.addEventListener('blur', apagar);
+    // En móvil no hay cursor: el primer toque enseña el showcase y el segundo entra.
+    a.addEventListener('click', (e) => {
+      if (activa !== a.dataset.categoria) {
+        e.preventDefault();
+        activar(a);
+      }
+    });
+  }
+  raiz.querySelector('.palabras')!.addEventListener('pointerleave', (e) => {
+    if ((e as PointerEvent).pointerType === 'mouse') apagar();
+  });
+  window.addEventListener('resize', colocar);
+  document.addEventListener('click', (e) => {
+    if (!(e.target as Element).closest('[data-categoria]')) apagar();
+  });
+
+  // Precarga para que el flipbook no parpadee.
+  const precargar = () => Object.values(datos).flat().forEach((src) => (new Image().src = src));
+  'requestIdleCallback' in window ? requestIdleCallback(precargar) : setTimeout(precargar, 1000);
+</script>
+
+<style>
+  .inicio {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 100svh;
+    padding: var(--cabecera) var(--margen);
+  }
+
+  .palabras {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    /* Blanco en "difference": casi negro sobre el papel e invertido sobre las imágenes. */
+    color: #fff;
+    mix-blend-mode: difference;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 1.25rem;
+    line-height: 1.1;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+
+  .palabras a {
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.12em;
+  }
+
+  .palabras :global(.par-fi) {
+    margin-right: 0.04em;
+  }
+
+  .palabras a:hover {
+    text-decoration: none;
+  }
+
+  .palabras a.encendida {
+    text-decoration: underline;
+  }
+
+  @media (min-width: 768px) {
+    /* Gráfico en el centro exacto de la página y las otras dos a los lados. */
+    .palabras {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 3.5em;
+      font-size: clamp(1.15rem, 1.5vw, 1.6rem);
+    }
+
+    .palabras li:first-child {
+      justify-self: end;
+    }
+
+    .palabras li:last-child {
+      justify-self: start;
+    }
+  }
+
+  .showcase {
+    position: fixed;
+    z-index: 1;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  .inicio[data-activa] .showcase {
+    visibility: visible;
+  }
+
+  /* Cada imagen cabe en una caja de 55 % del alto por 36 % del ancho de la pantalla, centrada en
+     vertical sobre las palabras: las verticales llenan el alto y las horizontales el ancho, así
+     ninguna (un pliego, el paquete del libro) sale desproporcionada. En móvil, el ancho entero. */
+  .showcase img {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: auto;
+    height: auto;
+    max-height: 55svh;
+    max-width: 36vw;
+  }
+
+  @media (max-width: 767px) {
+    .showcase img {
+      max-width: calc(100vw - 2 * var(--margen));
+    }
+  }
+</style>
