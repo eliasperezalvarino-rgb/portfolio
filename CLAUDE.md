@@ -237,7 +237,7 @@ src/layouts/Base.astro   Cabecera, menú, selector de idioma y pie
 - Las fechas son 2025 provisional.
 - Las herramientas y la formación de Sobre mí están por confirmar.
 - **Orden provisional de los proyectos:** HDYFAGM, Terra Viva, Os días que foron, Día.
-- **Repositorio git local desde el 10/11/2026** (rama `main`). El primer commit guarda el estado con A y B por si hay que volver a A. Desde el 13/11/2026 está en GitHub: `github.com/eliasperezalvarino-rgb/portfolio` (privado, remoto `origin`; se sube con `gh`, ya instalado con Homebrew). Para Cloudflare Pages tiene página 404 (`src/pages/404.astro`), `public/_headers` (caché de un año en `/_astro/`), `public/robots.txt` y `.nvmrc` (Node 22). En Cloudflare: preset Astro, `npm run build`, salida `dist`.
+- **Repositorio git local desde el 10/11/2026** (rama `main`). El primer commit guarda el estado con A y B por si hay que volver a A. Desde el 13/11/2026 está en GitHub: `github.com/eliasperezalvarino-rgb/portfolio` (privado, remoto `origin`; se sube con `gh`, ya instalado con Homebrew). Para Cloudflare Pages tiene página 404 (`src/pages/404.astro`), `public/_headers` (caché de un año en `/_astro/`), `public/robots.txt` y `.nvmrc` (Node 22). **Publicada desde el 13/11/2026 en `https://eliaaas.pages.dev`**: proyecto `eliaaas` de Cloudflare Pages (preset Astro, `npm run build`, salida `dist`), conectado a GitHub. Cada push a `main` la vuelve a publicar en un par de minutos. La app de Cloudflare en GitHub solo tiene acceso al repositorio `portfolio`.
 
 ## 11. Pendiente de Elías
 
@@ -249,7 +249,8 @@ src/layouts/Base.astro   Cabecera, menú, selector de idioma y pie
 - [ ] Escribir la frase de postura y la bio de Sobre mí, y pasar la foto, la formación y las herramientas.
 - [ ] Preparar el CV en PDF.
 - [x] Crear cuenta en GitHub (13/11/2026).
-- [ ] Crear cuenta en Cloudflare y conectar el repositorio en Pages.
+- [x] Crear cuenta en Cloudflare y conectar el repositorio en Pages (13/11/2026).
+- [ ] Conectar `eliaaas.com` en Custom domains del proyecto `eliaaas` cuando esté comprado.
 
 ## 12. Portfolio B (ya es la web principal desde el 10/11/2026)
 
