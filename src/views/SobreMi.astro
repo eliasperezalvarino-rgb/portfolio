@@ -3,7 +3,9 @@ import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import { rutas, sitio, t, type Idioma } from '../config';
 import { sobreMi } from '../textos';
-import foto from '../assets/foto.svg';
+// Fotos de Elías (originales en ~/Fotos-portfolio/sobre-mi): IMG_1037 la principal, IMG_0727 la segunda.
+import foto1 from '../assets/sobre-mi_v1.jpg';
+import foto2 from '../assets/sobre-mi-2_v1.jpg';
 import Escuchando from '../components/Escuchando.astro';
 
 interface Props {
@@ -15,17 +17,34 @@ const otro: Idioma = idioma === 'es' ? 'en' : 'es';
 const etiquetas = {
   formacion: { es: 'Formación', en: 'Education' },
   herramientas: { es: 'Herramientas', en: 'Tools' },
+  otraFoto: { es: 'Otra foto', en: 'Another photo' },
 };
+const fotos = [
+  { src: foto1, alt: { es: 'Elías, de pie junto a un árbol', en: 'Elías standing by a tree' } },
+  { src: foto2, alt: { es: 'Elías caminando mientras mira el móvil', en: 'Elías walking while looking at his phone' } },
+];
 ---
 
 <Base idioma={idioma} alterna={rutas.sobreMi[otro]} titulo={t.sobreMi[idioma]} activo="sobreMi">
   <main class="sobre-mi">
     <h1 class="visualmente-oculto">{t.sobreMi[idioma]}</h1>
-    <p class="postura">{sobreMi.postura[idioma]}</p>
     <div class="columnas">
-      <Image class="foto" src={foto} alt={sitio.firma} widths={[400, 800]} sizes="(min-width: 768px) 25vw, 60vw" />
+      <!-- Dos fotos: se ve la principal y con > (o clic en la foto) se pasa a la otra. -->
+      <figure class="fotos">
+        <button type="button" class="fotos-marco" aria-label={etiquetas.otraFoto[idioma]}>
+          {
+            fotos.map((f, i) => (
+              <Image class="foto" src={f.src} alt={f.alt[idioma]} hidden={i !== 0} widths={[400, 800]} sizes="(min-width: 768px) 25vw, 60vw" loading={i === 0 ? 'eager' : 'lazy'} />
+            ))
+          }
+        </button>
+        <figcaption class="fotos-pie">
+          <span class="gris"><span class="foto-actual">1</span> / {fotos.length}</span>
+          <button type="button" class="otra-foto" aria-label={etiquetas.otraFoto[idioma]}>&gt;</button>
+        </figcaption>
+      </figure>
       <div class="datos">
-        <p>{sobreMi.bio[idioma]}</p>
+        <div class="bio">{sobreMi.bio[idioma].map((parrafo) => <p>{parrafo}</p>)}</div>
         <section>
           <h2 class="gris">{etiquetas.formacion[idioma]}</h2>
           <ul>{sobreMi.formacion.map((f) => <li>{f[idioma]}</li>)}</ul>
@@ -62,6 +81,19 @@ const etiquetas = {
 </Base>
 
 <script>
+  // Fotos: pasar de una a otra, en bucle.
+  const fotos = [...document.querySelectorAll<HTMLImageElement>('.fotos .foto')];
+  const actual = document.querySelector('.foto-actual')!;
+  let n = 0;
+  function otraFoto() {
+    fotos[n].hidden = true;
+    n = (n + 1) % fotos.length;
+    fotos[n].hidden = false;
+    actual.textContent = String(n + 1);
+  }
+  document.querySelectorAll('.otra-foto, .fotos-marco').forEach((b) => b.addEventListener('click', otraFoto));
+  fotos.forEach((f) => (f.loading = 'eager'));
+
   document.querySelectorAll<HTMLButtonElement>('.copiar').forEach((boton) => {
     const original = boton.textContent;
     boton.addEventListener('click', async () => {
@@ -87,22 +119,47 @@ const etiquetas = {
     padding: calc(var(--cabecera) + 24px) var(--margen) 0;
   }
 
-  .postura {
-    max-width: 20em;
-    margin-bottom: 64px;
-    font-size: clamp(1.8rem, 4vw, 3.4rem);
-    line-height: 1.05;
-    letter-spacing: -0.01em;
-  }
-
   .columnas {
     display: grid;
     gap: 32px;
   }
 
-  .columnas :global(.foto) {
+  .bio {
+    display: grid;
+    gap: 0.9em;
+  }
+
+  .fotos {
     width: 60%;
     max-width: 320px;
+  }
+
+  .fotos-marco {
+    display: block;
+    width: 100%;
+    cursor: e-resize;
+  }
+
+  .fotos :global(.foto) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .fotos :global(.foto[hidden]) {
+    display: none;
+  }
+
+  .fotos-pie {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .otra-foto:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
   }
 
   .datos {
@@ -118,7 +175,7 @@ const etiquetas = {
       gap: var(--margen);
     }
 
-    .columnas :global(.foto) {
+    .fotos {
       width: 50%;
     }
   }

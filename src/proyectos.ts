@@ -15,3 +15,9 @@ export async function getSiguiente(actual: Proyecto) {
   const i = todos.findIndex((p) => p.id === actual.id);
   return todos[(i + 1) % todos.length];
 }
+
+export async function getAnterior(actual: Proyecto) {
+  const todos = await getProyectos();
+  const i = todos.findIndex((p) => p.id === actual.id);
+  return todos[(i - 1 + todos.length) % todos.length];
+}

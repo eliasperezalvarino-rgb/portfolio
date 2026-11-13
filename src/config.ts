@@ -68,6 +68,7 @@ export const t = {
   concepto: { es: 'Concepto', en: 'Concept' },
   desarrollo: { es: 'Desarrollo', en: 'Development' },
   siguiente: { es: 'Siguiente proyecto', en: 'Next project' },
+  anterior: { es: 'Proyecto anterior', en: 'Previous project' },
   // Visor de imágenes del proyecto
   indice: { es: 'Índice', en: 'Index' },
   unaAUna: { es: 'Una a una', en: 'One by one' },

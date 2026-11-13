@@ -33,7 +33,7 @@ desarrollo:
 # Portada: la imagen 3 del visor (detalle de la etiqueta) recortada en 4:5 (Elías, 6/11/2026).
 portada: ./terra-viva_portada_v2.jpg
 showcase: [./terra-viva_portada.jpg, ./terra-viva_final_01.jpg, ./terra-viva_detalle_01.jpg, ./terra-viva_comunicacion_03.jpg]
-# Orden del visor: el producto, sus detalles, la comunicación, la extensión al té y, al final, el proceso.
+# Orden del visor: el producto, sus detalles, la comunicación y la extensión al té. El pliego de etiquetas (proceso_01) se quitó el 10/11/2026 (Elías); el archivo sigue en la carpeta.
 imagenes:
   - src: ./terra-viva_final_01.jpg
     formato: mitad
@@ -77,8 +77,4 @@ imagenes:
     fondo: ninguno
     alt: { es: "Lateral de la caja de té con el nombre en relieve seco", en: "Side of the tea box with the name blind-embossed" }
     pie: { es: "La línea continúa más allá del vino.", en: "The line goes beyond wine." }
-  - src: ./terra-viva_proceso_01.jpg
-    formato: mitad
-    alt: { es: "Pliego impreso con ocho etiquetas de Terra Viva", en: "Printed sheet with eight Terra Viva labels" }
-    pie: { es: "Pliego de etiquetas: blanco joven y espumoso.", en: "Label sheet: young white and sparkling." }
 ---

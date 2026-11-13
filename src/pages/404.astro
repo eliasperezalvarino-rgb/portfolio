@@ -1,0 +1,21 @@
+---
+// Página de error. Cloudflare Pages la sirve sola para cualquier dirección que no exista.
+import Base from '../layouts/Base.astro';
+import { rutas } from '../config';
+---
+
+<Base idioma="es" alterna={rutas.proyectos.en} titulo="404">
+  <main class="no-encontrada">
+    <p>Esta página no existe. <a href={rutas.proyectos.es}>Ver proyectos</a></p>
+    <p lang="en">This page doesn't exist. <a href={rutas.proyectos.en}>See projects</a></p>
+  </main>
+</Base>
+
+<style>
+  .no-encontrada {
+    padding: 30vh var(--borde, 12px) 0;
+  }
+  .no-encontrada p + p {
+    color: #888;
+  }
+</style>

@@ -1,0 +1,50 @@
+eliaaas — portfolio
+===================
+
+Hola. Este es mi portfolio web. Se ve en el navegador y no hace falta instalar nada.
+
+
+CÓMO ABRIRLO
+------------
+
+1. Descomprime el ZIP (doble clic en Mac; en Windows, clic derecho > «Extraer todo»).
+   Importante: hay que descomprimirlo primero. Si se abre desde dentro del ZIP sin
+   extraer, las imágenes no cargan.
+
+2. Dentro de la carpeta «eliaaas-portfolio», abre «ABRIR PORTFOLIO.html» con doble clic.
+   Se abre en el navegador (Chrome, Safari, Firefox o Edge).
+
+
+CÓMO SE RECORRE
+---------------
+
+- Portada: las portadas de los proyectos van pasando abajo a la derecha. Un clic lleva a
+  Proyectos.
+- Proyectos: todos los trabajos. Se pueden filtrar por sección (Editorial, Gráfico,
+  Dirección creativa) y ver en cuadrícula o escalonados (iconos a la derecha).
+- Cada proyecto: a la izquierda, la ficha, la intención y el concepto; a la derecha, las
+  imágenes una a una. Se pasan con las flechas del teclado, con las flechas en pantalla o
+  con un clic en la mitad izquierda o derecha de la imagen. «Índice» enseña todas las
+  imágenes en miniatura.
+- Sobre mí: quién soy y cómo contactarme.
+- ES / EN, arriba a la derecha: cambia el idioma.
+
+La web está pensada para ordenador y también se puede ver en el móvil.
+
+
+CON CONEXIÓN A INTERNET
+-----------------------
+
+Casi todo funciona sin conexión. Dos cosas necesitan internet:
+
+- El vídeo de Simbiosis: al pulsar «Ver vídeo» se abre en YouTube.
+- «Escuchando ahora», en Sobre mí: la canción que suena en mi Spotify en ese momento.
+
+
+CONTACTO
+--------
+
+eliasperezalvarino@gmail.com
+Instagram: @eliaasperezz_
+
+Elías (eliaaas)

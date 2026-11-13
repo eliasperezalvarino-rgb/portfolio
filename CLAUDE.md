@@ -63,7 +63,7 @@ Menú fijo arriba, con cuatro entradas. La página activa (y el idioma elegido) 
   - **Escalonado:** la columna derecha empieza más abajo (22vw), así que ningún proyecto queda a la misma altura que su vecino. A Elías le gusta así, no hay que cambiarlo.
   - En móvil hay una sola columna, en el orden real.
 - Cada tarjeta lleva la portada (vertical 4:5) y debajo el título y, en gris, "tipo, año".
-- **Fondo neutro de las portadas** (6/11/2026): detrás de cada portada hay un gris cálido (`--lamina-clara`, `#d6d2c8`, más oscuro desde el 6/11 para que se distinga más) para que las de fondo transparente (Día, Os días que foron) se lean como un recuadro. También en Proyectos y en el cuadro del inicio de B.
+- **Fondo neutro de las portadas** (6/11/2026): detrás de cada portada hay un gris claro (`--lamina-clara`, `#f6f6f6` desde el 10/11/2026) para que las de fondo transparente (Día, Os días que foron) se lean como un recuadro. También en Proyectos y en el cuadro del inicio.
 
 ### 3.3 Página de proyecto
 
@@ -77,9 +77,14 @@ Menú fijo arriba, con cuatro entradas. La página activa (y el idioma elegido) 
    - En móvil: textos arriba y debajo el visor en una lámina 4:5.
    - Está en `src/views/Proyecto.astro`. El campo `formato` (`completa`, `mitad`, `tercio`) de cada imagen ya no se usa, pero se conserva por si se vuelve a una rejilla.
    - Investigación (5/11/2026): OK-RM (una imagen por pantalla con contador), Hans Gremmen (cuadrícula de miniaturas), Jon Uriarte (cubierta, ficha y tira de miniaturas) y Nicolas Barreto (columna larga con pies). Kummer & Herrman, Ramon Pez y Spassky Fischer no cargaron.
-5. **"Siguiente proyecto →"** al final, para que nadie se vaya sin ver otro trabajo.
+5. **«← Proyecto anterior» a la izquierda y «Siguiente proyecto →» a la derecha** al final (10/11/2026), para que nadie se vaya sin ver otro trabajo. Dan la vuelta: el anterior del primero es el último.
+6. **Filetes de ficha** (10/11/2026): en la columna de texto, cada apartado (cabecera, intención, encargo, concepto, desarrollo) va separado por una línea fina en negro al 18 % (`--filete`) (también debajo de Desarrollo, pero no entre el título y la ficha), y dentro de la ficha cada dato va en su renglón con una línea al 8 % (`--filete-suave`). El + de los apartados plegables va al borde derecho.
 
 ### 3.4 Sobre mí
+
+- **Texto elegido el 10/11/2026: «a la manera de Nathan Fielder».** Sin frase grande (Elías quitó «Me llamo Elías.» en grande el 10/11/2026; ahora abre la bio). Bio seria y literal con humor incómodo (ensayó su primer día en el estudio once veces, lleva un café de más, contesta en menos de una hora «lo he cronometrado»). El ensayo y lo de las notas son ficción humorística. Antes descartó: SB7 explícito (sonaba prepotente) y guiños autoirónicos sobre la firma y la lluvia («no es mi clase de humor»). Se define como «narrativo y divertido» (humor irónico). La bio es una lista de párrafos en `src/textos.ts`.
+- **Dos fotos** (10/11/2026): se ve IMG_1037 (de frente junto a un árbol, `src/assets/sobre-mi_v1.jpg`) y con «>» debajo, o con un clic en la foto, se pasa a IMG_0727 (caminando con el móvil, `sobre-mi-2_v1.jpg`), con contador «1 / 2». Originales en `~/Fotos-portfolio/sobre-mi/`.
+- Formación: Facultade de Deseño de Pontevedra (UVigo); nombre exacto del grado y curso, por confirmar.
 
 - Una frase de postura, que lo distinga de otros diseñadores.
 - Una bio corta en primera persona.
@@ -115,7 +120,7 @@ Cuatro en la primera versión. Mejor cuatro fuertes que un quinto flojo para hac
 
 Así cada categoría tiene al menos dos proyectos: Editorial 3, Gráfico 2 y Dirección creativa 3.
 
-**Videoclip (6/11/2026):** **Simbiosis** (Diego Flâneur, 2024), dirigido y realizado a tres con Xacobe Bruña y Román Pereira, los tres con los mismos roles: dirección creativa, dirección y cámara (va en «Rol»). Está en Dirección creativa (que pasa a 4), orden 5. El de Beach Avenue (No Name) se añadió y Elías lo quitó el mismo día. **Sin fotos, solo el vídeo** (los fotogramas no le gustaron a Elías). La portada y el showcase son la miniatura de YouTube recortada en 4:5 como las demás (`simbiosis_portada_45_v2.jpg`), y la vista previa del vídeo es la miniatura entera. Textos «Por escribir» y años sacados de la fecha de publicación, por confirmar.
+**Videoclip (6/11/2026):** **Simbiosis** (Diego Flâneur, 2024), dirigido y realizado a tres con Xacobe Bruña y Román Pereira, los tres con los mismos roles: dirección creativa, dirección y cámara (va en «Rol»). Está en Dirección creativa (que pasa a 4), orden 5. El de Beach Avenue (No Name) se añadió y Elías lo quitó el mismo día. **Sin fotos, solo el vídeo** (los fotogramas no le gustaron a Elías). La portada y el showcase son la miniatura de YouTube recortada en 4:5 como las demás (`simbiosis_portada_45_v2.jpg`), y la vista previa del vídeo es la miniatura entera. Textos (intención, concepto y desarrollo; sin encargo aparte, porque la intención es «Diego nos pidió que le grabáramos un vídeo», frase de Elías) redactados el 10/11/2026 con lo que contó Elías, pendientes de su visto bueno: fue un encargo de Diego Flâneur, se grabó a cuatro sin guion cerrado y la simbiosis con Galicia se cuenta con la lluvia (y el baile con la tierra, sin decirlo tan evidente). Año por confirmar.
 - **Campo `video`** en `index.md` (`youtube`, `fotograma`, `pie`): el vídeo es la primera diapositiva del visor, sin lámina negra. Si no hay más imágenes, se ocultan el contador, las flechas y el índice. YouTube (`youtube-nocookie.com`) no se carga hasta pulsar «▶ Ver vídeo», y se pausa al pasar de diapositiva o abrir el índice.
 
 - **Día.** Fotofanzine en el que Elías cuenta cómo es un día en su vida.
@@ -151,7 +156,7 @@ Ninguno de los textos actuales está bien escrito. Se reescriben todos con estas
 **La web es un marco silencioso y los trabajos ponen el color.** El único gesto fuerte son las tres palabras del inicio.
 
 - **Tipografía:** Helvetica de sistema en toda la web (`"Helvetica Neue", Helvetica, Arial, sans-serif`), desde el 5 de noviembre de 2026; antes era Times. Cuesta 0 € y no carga nada. Se cambia en `--fuente`, en `src/styles/global.css`. Las palabras del inicio van enormes y el resto pequeño, a tamaño de pie de foto.
-- **Color:** solo blanco roto y negro. Ningún otro color de interfaz.
+- **Color:** solo blanco y negro. El fondo es blanco puro (`--papel`, `#ffffff`) desde el 10/11/2026; antes era blanco roto (`#f5f3ee`). Ningún otro color de interfaz.
 - **Estilo:** texto pequeño, mucho aire, sin sombras, sin bordes redondeados y sin animaciones decorativas. El único movimiento es el showcase del inicio, y se respeta `prefers-reduced-motion`.
 - **Pies de foto** como ficha: `(book design, art direction) Título, 2026`.
 - **Referencias de Elías:**
@@ -206,6 +211,7 @@ src/layouts/Base.astro   Cabecera, menú, selector de idioma y pie
 
 - **Arrancar en local:** `npm run dev` y abrir http://localhost:4321.
 - **Compilar:** `npm run build`. Si un texto se pasa de palabras, falla y dice cuál.
+- **Entregar en ZIP** (11/11/2026, para el profesor): `npm run empaquetar` compila y deja `entrega/eliaaas-portfolio.zip` (no va a git). Lleva la web con rutas relativas para abrirla con doble clic sin servidor (`ABRIR PORTFOLIO.html`) y `LEEME.txt` con las instrucciones (se edita en `scripts/LEEME.txt`). Abierta como archivo, «Ver vídeo» abre YouTube en otra pestaña. Para revisarla: `preview_start` con `entrega` (servidor en el puerto 8765).
 - **Añadir un proyecto:** copiar una carpeta de `src/content/proyectos/`, cambiar las imágenes y rellenar `index.md`. El orden en la web lo marca `orden`.
 - **Imágenes del proyecto:** el orden de `imagenes` en `index.md` es el orden del visor. El `formato` ya no se usa (ver 3.3). Las de `showcase` son las que salen al azar en el inicio.
 - **Inglés:** las rutas cambian (`/proyectos/` → `/en/projects/`, `/sobre-mi/` → `/en/about/`…). Si el visitante elige EN, se recuerda y la portada le lleva a `/en/`.

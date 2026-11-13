@@ -1,11 +1,11 @@
 /* Marco silencioso: Helvetica de sistema, blanco roto y negro. */
 
 :root {
-  --papel: #f5f3ee;
+  --papel: #ffffff; /* Blanco (Elías, 10/11/2026). Antes #f5f3ee, blanco roto; probado también #fcfbf9. */
   --tinta: #111111;
   --gris: #77746d;
   /* Fondo neutro detrás de las portadas con transparencia, para que se vea el recuadro (Elías, 6/11/2026). */
-  --lamina-clara: #e6e3dc;
+  --lamina-clara: #f6f6f6; /* Elías, 10/11/2026. Antes #f0eee9 y #e6e3dc. */
   --fuente: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --texto: 15px;
   --interlineado: 1.3;
