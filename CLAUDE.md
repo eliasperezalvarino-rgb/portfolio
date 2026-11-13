@@ -237,7 +237,7 @@ src/layouts/Base.astro   Cabecera, menú, selector de idioma y pie
 - Las fechas son 2025 provisional.
 - Las herramientas y la formación de Sobre mí están por confirmar.
 - **Orden provisional de los proyectos:** HDYFAGM, Terra Viva, Os días que foron, Día.
-- **Repositorio git local desde el 10/11/2026** (rama `main`). El primer commit guarda el estado con A y B por si hay que volver a A. Aún no está en GitHub ni publicada en Cloudflare Pages.
+- **Repositorio git local desde el 10/11/2026** (rama `main`). El primer commit guarda el estado con A y B por si hay que volver a A. Desde el 13/11/2026 está en GitHub: `github.com/eliasperezalvarino-rgb/portfolio` (privado, remoto `origin`; se sube con `gh`, ya instalado con Homebrew). Para Cloudflare Pages tiene página 404 (`src/pages/404.astro`), `public/_headers` (caché de un año en `/_astro/`), `public/robots.txt` y `.nvmrc` (Node 22). En Cloudflare: preset Astro, `npm run build`, salida `dist`.
 
 ## 11. Pendiente de Elías
 
@@ -248,7 +248,8 @@ src/layouts/Base.astro   Cabecera, menú, selector de idioma y pie
 - [ ] Confirmar las fechas reales, el papel en cada proyecto y el orden.
 - [ ] Escribir la frase de postura y la bio de Sobre mí, y pasar la foto, la formación y las herramientas.
 - [ ] Preparar el CV en PDF.
-- [ ] Crear cuenta en GitHub y Cloudflare para publicar.
+- [x] Crear cuenta en GitHub (13/11/2026).
+- [ ] Crear cuenta en Cloudflare y conectar el repositorio en Pages.
 
 ## 12. Portfolio B (ya es la web principal desde el 10/11/2026)
 
