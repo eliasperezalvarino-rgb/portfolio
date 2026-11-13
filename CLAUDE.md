@@ -21,7 +21,7 @@ Web/portfolio de Elías (21 años, estudiante de diseño gráfico), construida e
 - **Firma:** **eliaaas** (con tres aes). Es casi impronunciable a propósito, para que le llamen "Elías". Nunca "Elías Pérez".
 - **Dominio:** **`eliaaas.com`**, decidido el 22/10/2026 porque coincide con la firma. Ese día estaba libre.
   - Se compra en Cloudflare Registrar, que lo vende a precio de coste (unos 10 €/año) y es donde está alojada la web. Lo compra Elías.
-  - Hasta que esté conectado, la web vive gratis en `*.pages.dev`.
+  - **Comprado y conectado el 13/11/2026** (11,17 $/año, renovación automática). La web está en `https://eliaaas.com`. `www.eliaaas.com` redirige con un 301 a `eliaaas.com`, conservando la ruta y los parámetros (regla «Redirect from WWW to root» en Rules → Redirect Rules de la zona). `eliaaas.pages.dev` sigue funcionando.
 - **Idioma:** castellano por defecto e inglés con un selector "ES / EN" en el menú. La elección se recuerda y cada idioma tiene su propia URL (`/en/...`).
 
 ## 3. Mapa de la web
@@ -241,7 +241,7 @@ src/layouts/Base.astro   Cabecera, menú, selector de idioma y pie
 
 ## 11. Pendiente de Elías
 
-- [ ] Comprar `eliaaas.com` en Cloudflare Registrar.
+- [x] Comprar `eliaaas.com` en Cloudflare Registrar (13/11/2026).
 - [ ] Decir el teléfono para Contacto.
 - [ ] Pasar las imágenes de los cuatro proyectos y los textos o memorias que haya.
 - [ ] Reescribir con Claude los cuatro textos con `criterios-de-escritura.md`.
@@ -250,7 +250,7 @@ src/layouts/Base.astro   Cabecera, menú, selector de idioma y pie
 - [ ] Preparar el CV en PDF.
 - [x] Crear cuenta en GitHub (13/11/2026).
 - [x] Crear cuenta en Cloudflare y conectar el repositorio en Pages (13/11/2026).
-- [ ] Conectar `eliaaas.com` en Custom domains del proyecto `eliaaas` cuando esté comprado.
+- [x] Conectar `eliaaas.com` a la web (13/11/2026).
 
 ## 12. Portfolio B (ya es la web principal desde el 10/11/2026)
 
