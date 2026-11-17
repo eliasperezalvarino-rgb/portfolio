@@ -72,10 +72,17 @@ const portadas = await Promise.all(
     right: var(--margen);
     bottom: var(--margen);
     display: block;
-    width: clamp(180px, 24vw, 360px);
+    /* En móvil, más grande para que sea fácil darle con el dedo. */
+    width: min(60vw, 300px);
     aspect-ratio: 4 / 5;
     overflow: hidden;
     background: var(--lamina-clara);
+  }
+
+  @media (min-width: 768px) {
+    .cuadro {
+      width: clamp(180px, 24vw, 360px);
+    }
   }
 
   .cuadro img {
